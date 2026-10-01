@@ -94,7 +94,7 @@ agentia rollback generate --steps-file steps.json --out ./rollback.xml --json
 ### 3. Simulate confidence before you plan
 
 ```sh
-agentia rollback simulate --story US-0000024 --source-credential-id a11hm0000016pTxAAI --source-org-id 00D --json
+agentia rollback simulate --story US-0000024 --source-credential-id a11hm0000016pTxAAI --source-org-id 00Dhm000004sqH4EAI --json
 ```
 
 ## Live Demo Workflow
