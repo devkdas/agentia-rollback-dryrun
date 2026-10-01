@@ -51,6 +51,9 @@ production when the undo itself fails.
   with zero CLI calls.
 - **Valid XML output** — escaped members grouped by type with a stamped
   API version.
+- **Pre-flight simulation** — `rollback simulate` checks every member
+  against the target org index and scores confidence honestly before
+  you write the plan.
 - **Zero private imports** — only shells out to public `agentia`
   commands.
 
@@ -88,6 +91,12 @@ agentia rollback generate --story US-0000024
 agentia rollback generate --steps-file steps.json --out ./rollback.xml --json
 ```
 
+### 3. Simulate confidence before you plan
+
+```sh
+agentia rollback simulate --story US-0000024 --source-credential-id a11hm0000016pTxAAI --source-org-id 00D --json
+```
+
 ## Live Demo Workflow
 
 Verified live:
@@ -98,6 +107,8 @@ Verified live:
 2. Fixture with ApexClass, ApexTrigger and one mystery step
    -> 2 members across 2 types mapped, mystery listed unmapped
 3. Generated XML with escaped members grouped by type, version stamped
+4. agentia rollback simulate --steps-file steps.json --source-credential-id ... --source-org-id ... --json
+   -> honesty graded confidence, missing members listed before planning
 ```
 
 ## Command Reference
@@ -114,6 +125,22 @@ Verified live:
 
 One of `--story` or `--steps-file` is required. The command never
 deploys or deletes anything.
+
+### `agentia rollback simulate`
+
+| Flag | Description |
+|---|---|
+| `-s, --story <id>` | User story owning the deployment steps |
+| `--steps-file <path>` | JSON step array for offline use |
+| `--source-credential-id <id>` | (required) Target org credential ID for member checks |
+| `--source-org-id <id>` | (required) Target org ID for member checks |
+| `--pipeline-id <id>` | Pipeline ID scoping gateway calls |
+| `-j, --json` | Machine readable JSON summary |
+
+Scores confidence honestly: resolvable members raise it, missing
+members lower it and are listed by name. One of `--story` or
+`--steps-file` is required. Read only against the org index, never
+a deployment.
 
 ## Configuration
 
@@ -135,6 +162,11 @@ agentia rollback generate
   -> deployment-step list --user-story (or fixture file)
   -> flexible member mapping with honest misses
   -> destructiveChanges XML grouped by type
+
+agentia rollback simulate
+  -> same step reading as generate
+  -> member check against target org index
+  -> honesty graded confidence plus missing list
 ```
 
 ## Security
@@ -161,8 +193,9 @@ Rollback Dry Run (this plugin)
   |- reader  -> deployment-step list
   |- mapper  -> typed, dotted and solo shapes
   |- writer  -> escaped XML grouped by type
-       |
-Preview file plus JSON summary
+  |- checker -> org index member check plus confidence
+        |
+Preview file plus JSON summary, simulate first for confidence
 ```
 
 ## Hackathon Fit
